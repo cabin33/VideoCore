@@ -143,7 +143,10 @@ namespace videocore {
 
                 } else {
                     // use data provided
-                    m_inBuffer[hash]->put(const_cast<uint8_t*>(data), size);
+                    //m_inBuffer[hash]->put(const_cast<uint8_t*>(data), size);
+                    if(m_inBuffer[hash]){ //fix crash on ios6
+                        m_inBuffer[hash]->put(const_cast<uint8_t*>(data), size);
+                    }
                 }
 
             }

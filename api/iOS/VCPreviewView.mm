@@ -122,7 +122,11 @@
         glDeleteBuffers(1, &_vbo);
     }
     if(_vao) {
-        glDeleteVertexArrays(1, &_vao);
+        if (VCSYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+            glDeleteVertexArrays(1, &_vao);
+        }else{
+            glDeleteVertexArraysOES(1, &_vao);
+        }
     }
     if(_fbo) {
         glDeleteFramebuffers(1, &_fbo);
