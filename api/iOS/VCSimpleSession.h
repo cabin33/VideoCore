@@ -33,6 +33,12 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <UIKit/UIKit.h>
 
+typedef NS_ENUM(NSInteger, VCSessionAspectMode)
+{
+    VCSessionAspectFit,
+    VCSessionAspectFill
+};
+
 typedef NS_ENUM(NSInteger, VCSessionState)
 {
     VCSessionStateNone,
@@ -41,7 +47,6 @@ typedef NS_ENUM(NSInteger, VCSessionState)
     VCSessionStateStarted,
     VCSessionStateEnded,
     VCSessionStateError
-
 };
 
 typedef NS_ENUM(NSInteger, VCCameraState)
@@ -90,6 +95,13 @@ typedef NS_ENUM(NSInteger, VCCameraState)
                          frameRate:(int)fps
                            bitrate:(int)bps
            useInterfaceOrientation:(BOOL)useInterfaceOrientation;
+
+// -----------------------------------------------------------------------------
+- (instancetype) initWithVideoSize:(CGSize)videoSize
+                         frameRate:(int)fps
+                           bitrate:(int)bps
+           useInterfaceOrientation:(BOOL)useInterfaceOrientation
+                        aspectMode:(VCSessionAspectMode)aspect;
 
 // -----------------------------------------------------------------------------
 - (void) startRtmpSessionWithURL:(NSString*) rtmpUrl

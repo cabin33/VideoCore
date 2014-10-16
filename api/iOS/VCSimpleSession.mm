@@ -135,7 +135,7 @@ namespace videocore { namespace simpleApi {
     
 }
 @property (nonatomic, readwrite) VCSessionState rtmpSessionState;
-
+@property (nonatomic, assign)VCSessionAspectMode aspectMode;
 - (void) setupGraph;
 
 @end
@@ -353,7 +353,8 @@ namespace videocore { namespace simpleApi {
         [self initInternalWithVideoSize:videoSize
                               frameRate:fps
                                 bitrate:bps
-                useInterfaceOrientation:NO];
+                useInterfaceOrientation:NO
+                             aspectMode:VCSessionAspectFit];
         
     }
     return self;
@@ -369,7 +370,24 @@ namespace videocore { namespace simpleApi {
         [self initInternalWithVideoSize:videoSize
                               frameRate:fps
                                 bitrate:bps
-                useInterfaceOrientation:useInterfaceOrientation];
+                useInterfaceOrientation:useInterfaceOrientation
+                             aspectMode:VCSessionAspectFit];
+    }
+    return self;
+}
+
+- (instancetype) initWithVideoSize:(CGSize)videoSize
+                         frameRate:(int)fps
+                           bitrate:(int)bps
+           useInterfaceOrientation:(BOOL)useInterfaceOrientation
+                        aspectMode:(VCSessionAspectMode)aspect{
+    if (( self = [super init] ))
+    {
+        [self initInternalWithVideoSize:videoSize
+                              frameRate:fps
+                                bitrate:bps
+                useInterfaceOrientation:useInterfaceOrientation
+                             aspectMode:aspect];
     }
     return self;
 }
@@ -378,7 +396,9 @@ namespace videocore { namespace simpleApi {
                          frameRate:(int)fps
                            bitrate:(int)bps
            useInterfaceOrientation:(BOOL)useInterfaceOrientation
+                        aspectMode:(VCSessionAspectMode)aspect
 {
+    self.aspectMode = aspect;
     self.bitrate = bps;
     self.videoSize = videoSize;
     self.fps = fps;
@@ -396,18 +416,17 @@ namespace videocore { namespace simpleApi {
     _continuousExposure = _continuousAutofocus = YES;
     
     _graphManagementQueue = dispatch_queue_create("com.videocore.session.graph", 0);
-
+    
     __block VCSimpleSession* bSelf = self;
     
     dispatch_async(_graphManagementQueue, ^{
         [bSelf setupGraph];
     });
-    
-
 }
 
 - (void) dealloc
 {
+    NSLog(@"//////////******%@ dealloc", self);
     [self endRtmpSession];
     m_audioMixer.reset();
     m_videoMixer.reset();
@@ -480,7 +499,7 @@ namespace videocore { namespace simpleApi {
                                                           }
                                                           
                                                       }) );
-    VCSimpleSession* bSelf = self;
+    VCSimpleSession* bSelf =  self;
     
     _bpsCeiling = _bitrate;
     
@@ -616,7 +635,11 @@ namespace videocore { namespace simpleApi {
     {
         // Add camera source
         m_cameraSource = std::make_shared<videocore::iOS::CameraSource>();
-        auto aspectTransform = std::make_shared<videocore::AspectTransform>(self.videoSize.width,self.videoSize.height,videocore::AspectTransform::kAspectFit);
+        videocore::AspectTransform::AspectMode vcAspect = videocore::AspectTransform::kAspectFill;
+        if (self.aspectMode == VCSessionAspectFill) {
+            vcAspect = videocore::AspectTransform::kAspectFit;
+        }
+        auto aspectTransform = std::make_shared<videocore::AspectTransform>(self.videoSize.width,self.videoSize.height,vcAspect);
 
         auto positionTransform = std::make_shared<videocore::PositionTransform>(self.videoSize.width/2, self.videoSize.height/2,
                                                                                 self.videoSize.width * self.videoZoomFactor, self.videoSize.height * self.videoZoomFactor,
@@ -696,7 +719,6 @@ namespace videocore { namespace simpleApi {
     m_h264Packetizer->setOutput(m_outputSession);
     m_aacPacketizer->setOutput(m_outputSession);
 
-
 }
 - (NSString *) applicationDocumentsDirectory
 {
@@ -705,3 +727,4 @@ namespace videocore { namespace simpleApi {
     return basePath;
 }
 @end
+
