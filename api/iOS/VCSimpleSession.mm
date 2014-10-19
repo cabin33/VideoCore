@@ -635,9 +635,9 @@ namespace videocore { namespace simpleApi {
     {
         // Add camera source
         m_cameraSource = std::make_shared<videocore::iOS::CameraSource>();
-        videocore::AspectTransform::AspectMode vcAspect = videocore::AspectTransform::kAspectFill;
+        videocore::AspectTransform::AspectMode vcAspect = videocore::AspectTransform::kAspectFit;
         if (self.aspectMode == VCSessionAspectFill) {
-            vcAspect = videocore::AspectTransform::kAspectFit;
+            vcAspect = videocore::AspectTransform::kAspectFill;
         }
         auto aspectTransform = std::make_shared<videocore::AspectTransform>(self.videoSize.width,self.videoSize.height,vcAspect);
 
